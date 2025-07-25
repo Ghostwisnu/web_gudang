@@ -34,7 +34,6 @@
                         <td><?= $li['item_name']?></td>
                         <td><?= $li['unit_name']?></td>
                         <td>
-                            <a href="" class="badge badge-success" data-toggle="modal" data-target="#updateListItemModal<?= $li['id_listitem'] ?>">Edit</a>
                             <a href="<?= base_url('form/delete_listitem/'.$li['id_listitem'])?>" name="btn-delete" class="badge badge-danger">delete</a>
                         </td>
                     </tr>
@@ -71,8 +70,8 @@
                     </div>
                     <div class="form-group">
                         <select name="unit_name" id="unit_name" class="form-control">
-                            <option value="">Select Art</option>
-                            <?php foreach($listitem as $li) : ?>
+                            <option value="">Select Unit</option>
+                            <?php foreach($unit as $li) : ?>
                                 <option value="<?= $li['unit_name'];?>"><?= $li['unit_name'];?></option>
                             <?php endforeach; ?>
                         </select>
@@ -86,38 +85,3 @@
         </div>
     </div>
 </div>
-
-<?php foreach($listitem as $li) : ?>
-<div class="modal fade" id="updateListItemModal<?= $li['id_listitem'] ?>" tabindex="-1" aria-labelledby="updateListItemModalLabel<?= $li['id_listitem'] ?>" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="updateListItemModalLabel<?= $li['id_listitem'] ?>">Update List Item</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-            <form action="<?= base_url('form/update_listitem/'.$li['id_listitem'])?>" method="post">
-                <div class="modal-body">
-                    <input type="hidden" name="id_listitem" value="<?= $li['id_listitem']?>"> 
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="item_name<?= $li['id_listitem'] ?>" name="item_name" value="<?= $li['item_name']?>" placeholder="Item Name">
-                    </div>
-                    <div class="form-group">
-                        <select name="art_name" id="art_name" class="form-control">
-                            <option value="">Select Art</option>
-                            <?php foreach($listitem as $li) : ?>
-                                <option value="<?= $li['art_name'];?>"><?= $li['art_name'];?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Add</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<?php endforeach; ?>

@@ -557,6 +557,7 @@ class Warehouse extends CI_Controller {
 
             if ($exists) {
                 $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+                redirect('warehouse/sj_item_blackstone/' . $id. '/' . $id_sj);
             } else {
                 // ✅ Prepare base insert data
                 $insertData = [

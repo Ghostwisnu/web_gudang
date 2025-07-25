@@ -79,10 +79,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="item_name" name="item_name" placeholder="Item Name">
+                        <select name="item_name" id="item_name" class="form-control" required>
+                            <option value="">Select Item</option>
+                            <?php foreach($listitem as $c): ?>
+                                <option value="<?= $c['item_name']; ?>" 
+                                        data-unit="<?= $c['unit_name']; ?>">
+                                    <?= $c['item_name']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" id="unit_name" name="unit_name" placeholder="Unit Name">
+                        <input type="text" class="form-control" id="unit_name" name="unit_name" placeholder="Unit Name" readonly>
                     </div>
                     <div class="form-group">
                         <input type="text" class="form-control" id="cons_rate" name="cons_rate" placeholder="Cons Rate">

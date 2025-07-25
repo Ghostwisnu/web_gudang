@@ -102,6 +102,21 @@ $(document).ready(function() {
 });
 </script>
 
+<!-- JavaScript to handle unit_name and cons_rate updates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const itemSelect = document.getElementById('item_name');
+    const unitInput = document.getElementById('unit_name');
+    const consRateInput = document.getElementById('cons_rate');
+
+    itemSelect.addEventListener('change', function() {
+        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        unitInput.value = selectedOption.dataset.unit || '';
+        consRateInput.value = selectedOption.dataset.rate || '';
+    });
+});
+</>
+
 
 </body>
 

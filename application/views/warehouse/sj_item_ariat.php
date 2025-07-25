@@ -113,7 +113,7 @@ $current_sj = !empty($insj) ? $insj[0] : null;
 <!-- Modal Add -->
 <?php if (!empty($insj)) : $sp = $insj[0]; ?>
 <div class="modal fade" id="newSjItemModal" tabindex="-1" aria-labelledby="newSjItemModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content">
       <form action="<?= base_url('warehouse/sj_item_ariat/'.$sp['id_spk']. '/' . $sp['id_sj']) ?>" method="post">
         <div class="modal-header">
@@ -140,23 +140,19 @@ $current_sj = !empty($insj) ? $insj[0] : null;
 
             <div id="common-fields">
                 <div class="form-group">
-                    <label>Item Name</label>
-                    <select name="item_name" class="form-control" required>
-                        <option value="">Select Item</option>
-                        <?php foreach ($uns as $ac): ?>
-                            <option value="<?= $ac['item_name'] ?>"><?= $ac['item_name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Unit</label>
-                    <select name="unit_name" class="form-control" required>
-                        <option value="">Select Unit</option>
-                        <?php foreach ($uns as $ac): ?>
-                            <option value="<?= $ac['unit_name'] ?>"><?= $ac['unit_name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                        <select name="item_name" id="item_name" class="form-control" required>
+                            <option value="">Select Item</option>
+                            <?php foreach($uns as $c): ?>
+                                <option value="<?= $c['item_name']; ?>" 
+                                        data-unit="<?= $c['unit_name']; ?>">
+                                    <?= $c['item_name']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                        <div class="form-group">
+                        <input type="text" class="form-control" id="unit_name" name="unit_name" placeholder="Unit Name" readonly>
+                    </div>
             </div>
 
             <div id="global-fields" style="display: none;">

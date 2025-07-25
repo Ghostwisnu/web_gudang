@@ -1244,6 +1244,7 @@ class Form extends CI_Controller {
     
     if (!$data['spk']) {
         show_error('SPK data not found for ID: ' . $id_spk);
+        return;
     }
 
     // ✅ Properly get artcolor_name from the single row
