@@ -38,7 +38,7 @@
                     <a type="button" class="badge badge-success mb-3"  href="<?=base_url('form/update_spk_item/'.$sp['id_spk'])?>" name="btn_add" style="margin:auto;">Add New Item</a>
                 <?php endforeach; ?>
                 <a type="button" class="badge badge-warning mb-3"  href="<?=base_url('form/spk')?>" name="btn_add" style="margin:auto;">Back to SPK</a>                  
-                <a href="<?= base_url('form/export_rossi_pdf/' . $spk[0]['id_spk']) ?>" class="badge badge-danger mb-3" target="_blank">Export PDF</a>
+                <a href="<?= base_url('form/export_blackstone_pdf/' . $spk[0]['id_spk']) ?>" class="badge badge-danger mb-3" target="_blank">Export PDF</a>
 
                 <!-- SIZE RUN TABLE -->
         <div class="table-responsive mb-5">

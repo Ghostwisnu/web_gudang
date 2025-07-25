@@ -38,7 +38,7 @@ $current_sj = !empty($insj) ? $insj[0] : null;
 <h2><?= $title ?></h2>
 
 <?php foreach ($spk as $sp): ?>
-<div class="section">
+<div class="section mb-3">
     <div><span class="label">PO Number:</span> <?= $sp['po_number'] ?></div>
     <div><span class="label">XFD:</span> <?= $sp['xfd'] ?></div>
     <div><span class="label">Brand:</span> <?= $sp['brand_name'] ?></div>
@@ -48,7 +48,7 @@ $current_sj = !empty($insj) ? $insj[0] : null;
 <?php endforeach; ?>
 
 <?php $sj = $insj[0]; ?>
-<div class="section">
+<div class="section mb-3">
     <div><span class="label">No. DO:</span> <?= $sj['no_do'] ?></div>
     <div><span class="label">No. SJ:</span> <?= $sj['no_sj'] ?></div>
     <div><span class="label">Supplier Name:</span> <?= $sj['supplier_name'] ?></div>

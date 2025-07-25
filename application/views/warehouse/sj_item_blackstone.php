@@ -70,7 +70,7 @@ $current_sj = !empty($insj) ? $insj[0] : null;
                     <a type="button" class="badge badge-warning mb-3"  href="<?=base_url('warehouse/update_sj_item/'.$sj['id_spk'])?>" name="btn_add" style="margin:auto;">Back to SJ</a>
                 <?php endforeach; ?>
                 <a href="" class="badge badge-success mb-3" data-toggle="modal" data-target="#newSjItemModal">Add New Checkin Item</a>
-                <a type="button" class="badge badge-warning mb-3"  href="<?=base_url('warehouse/index_checkin')?>" name="btn_add" style="margin:auto;">Back to Checkin</a>   
+                <a type="button" class="badge badge-success"  href="<?=base_url('warehouse/update_spk_checkin_brand/'.$sp['id_spk'])?>" name="btn_add" style="margin:auto;">Back To CheckIn</a>   
                 <a href="<?= base_url('warehouse/export_sj_blackstone/' . $sp['id_spk']. '/' . $sj['id_sj']); ?>" class="badge badge-danger mb-3" target="_blank">Export to PDF</a>                
                 <table class="table table-bordered">
                 <thead>

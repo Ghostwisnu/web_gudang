@@ -572,6 +572,7 @@ class Warehouse extends CI_Controller {
                     'no_plat'       => $this->input->post('no_plat'),
                     'tgl_checkin'   => $this->input->post('tgl_checkin'),
                     'id_sj'         => $this->input->post('id_sj'),
+                    'created_at' => date('Y-m-d H:i:s'),
                     'item_type'     => $item_type,
                     'item_name'     => $item_name,
                     'unit_name'     => $unit_name,
@@ -680,6 +681,7 @@ class Warehouse extends CI_Controller {
 
             if ($exists) {
                 $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+                redirect('warehouse/sj_item_rossi/' . $id_spk .'/' . $id_sj);
             } else {
                 // Prepare insert data
                 $insertData = [
@@ -694,6 +696,7 @@ class Warehouse extends CI_Controller {
                     'no_plat'       => $this->input->post('no_plat'),
                     'tgl_checkin'   => $this->input->post('tgl_checkin'),
                     'id_sj'         => $this->input->post('id_sj'),
+                    'created_at' => date('Y-m-d H:i:s'),
                     'item_type'     => $item_type,
                     'item_name'     => $item_name,
                     'unit_name'     => $unit_name,
@@ -796,6 +799,7 @@ class Warehouse extends CI_Controller {
 
             if ($exists) {
                 $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+                redirect('warehouse/sj_item_ariat/' . $id .'/' . $id_sj);
             } else {
                 $insertData = [
                     'id_spk'        => $id,
@@ -809,6 +813,7 @@ class Warehouse extends CI_Controller {
                     'no_plat'       => $this->input->post('no_plat'),
                     'tgl_checkin'   => $this->input->post('tgl_checkin'),
                     'id_sj'         => $this->input->post('id_sj'),
+                    'created_at' => date('Y-m-d H:i:s'),
                     'item_type'     => $item_type,
                     'item_name'     => $item_name,
                     'unit_name'     => $unit_name,

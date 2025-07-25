@@ -228,7 +228,7 @@ class Form extends CI_Controller {
             $this->load->view('templates/footer');
         } else {
             $this->db->insert('form_unit', [
-                'unit_name' => $this->input->post('unit_name')]);
+                'unit_name' => strtoupper($this->input->post('unit_name'))]);
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Unit baru berhasil ditambahkan!</div>');
             redirect('form/unit');
         }
@@ -310,7 +310,7 @@ class Form extends CI_Controller {
             $this->load->view('form/menu_listitem', $data);
             $this->load->view('templates/footer');
         } else {
-            $item      = $this->input->post('item_name',TRUE); 
+            $item      = strtoupper($this->input->post('item_name',TRUE)); 
             $unit      = $this->input->post('unit_name',TRUE);      
 
             $data = array(
