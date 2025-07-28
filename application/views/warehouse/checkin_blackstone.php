@@ -45,7 +45,7 @@
             </a>
 
             <!-- Data Table -->
-            <table class="table table-bordered">
+            <table class="table table-bordered table-responsive">
                 <thead>
                     <tr>
                         <th scope="col-lg-2">#</th>
@@ -56,6 +56,10 @@
                         <th scope="col-lg-2">Unit</th>
                         <th scope="col-lg-2">QTY</th>
                         <th scope="col-lg-2">Total Cons Rate</th>
+                        <th scope="col-lg-2">Checkin QTY</th>
+                        <th scope="col-lg-2">Checkout QTY</th>
+                        <th scope="col-lg-2">Checkin Balance</th>
+                        <th scope="col-lg-2">Checkout Balance</th>
                         <th scope="col-lg-2">Action</th>
                     </tr>
                 </thead>
@@ -72,6 +76,10 @@
                         <td><?= $po['unit_name']?></td>
                         <td><?= $po['qty']?></td>
                         <td><?= $po['total_consrate']?></td>
+                        <td><?= $po['checkin_qty']?></td>
+                        <td><?= $po['checkout_qty']?></td>
+                        <td><?= $po['checkin_balance']?></td>
+                        <td><?= $po['checkout_balance']?></td>
                         <td>
                             <a href="<?= base_url('form/delete_spk_item/'.$po['id_spkitem'])?>" name="btn-delete" class="badge badge-danger">delete</a>
                             

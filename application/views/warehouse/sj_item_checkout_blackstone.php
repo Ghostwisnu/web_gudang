@@ -147,21 +147,19 @@ $current_sj = !empty($outsj) ? $outsj[0] : null;
                     <!-- Common Fields -->
                     <div id="common-fields">
                         <div class="form-group">
-                            <select name="item_name" id="item_name" class="form-control">
-                                <option value="">Select Item</option>
-                                <?php foreach($uns as $ac): ?>
-                                    <option value="<?= $ac['item_name']; ?>"><?= $ac['item_name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                        <select name="item_name" id="item_name" class="form-control" required>
+                            <option value="">Select Item</option>
+                            <?php foreach($uns as $c): ?>
+                                <option value="<?= $c['item_name']; ?>" 
+                                        data-unit="<?= $c['unit_name']; ?>">
+                                    <?= $c['item_name']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                         <div class="form-group">
-                            <select name="unit_name" id="unit_name" class="form-control">
-                                <option value="">Select Unit</option>
-                                <?php foreach($uns as $ac): ?>
-                                    <option value="<?= $ac['unit_name']; ?>"><?= $ac['unit_name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                        <input type="text" class="form-control" id="unit_name" name="unit_name" placeholder="Unit Name" readonly>
+                    </div>
                     </div>
 
                     <!-- GLOBAL Fields -->

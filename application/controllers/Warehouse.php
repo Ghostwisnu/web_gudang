@@ -374,6 +374,7 @@ class Warehouse extends CI_Controller {
     $data['title'] = 'Form Add Item';
     $data['users'] = $this->db->get_where('users', ['email' => 
     $this->session->userdata('email')])->row_array();
+    $data['datanosj'] = $this->General_model->buat_sj_auto();
 
     $id_spk = $this->uri->segment(3);
     $where = ['id_spk' => $id_spk];
@@ -592,10 +593,13 @@ class Warehouse extends CI_Controller {
                 $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
                 $new_total_qty = $existing_qty + $final_qty;
 
+                $existing_checkin_qty = isset($existing['checkin_qty']) && is_numeric($existing['checkin_qty']) ? (int)$existing['checkin_qty'] : 0;
+                $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
+                $adjusted_checkin_qty = $new_total_qty - $total_consrate;
                 // Update with new total
                 $this->General_model->update2(
                     'form_checkin_item',
-                    ['qty' => $new_total_qty],
+                    ['qty' => $new_total_qty, 'checkin_balance' => $adjusted_checkin_qty, 'checkin_qty' => $new_total_qty],
                     ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
                 );
 
@@ -715,13 +719,15 @@ class Warehouse extends CI_Controller {
                 $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
                 $new_total_qty = $existing_qty + $final_qty;
 
+                $existing_checkin_qty = isset($existing['checkin_qty']) && is_numeric($existing['checkin_qty']) ? (int)$existing['checkin_qty'] : 0;
+                $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
+                $adjusted_checkin_qty = $new_total_qty - $total_consrate;
                 // Update with new total
                 $this->General_model->update2(
                     'form_checkin_item',
-                    ['qty' => $new_total_qty],
-                    ['id_spk' => $id_spk, 'item_name' => $item_name, 'unit_name' => $unit_name]
+                    ['qty' => $new_total_qty, 'checkin_balance' => $adjusted_checkin_qty, 'checkin_qty' => $new_total_qty],
+                    ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
                 );
-
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
             }
 
@@ -831,13 +837,15 @@ class Warehouse extends CI_Controller {
                 $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
                 $new_total_qty = $existing_qty + $final_qty;
 
+                $existing_checkin_qty = isset($existing['checkin_qty']) && is_numeric($existing['checkin_qty']) ? (int)$existing['checkin_qty'] : 0;
+                $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
+                $adjusted_checkin_qty = $new_total_qty - $total_consrate;
                 // Update with new total
                 $this->General_model->update2(
                     'form_checkin_item',
-                    ['qty' => $new_total_qty],
+                    ['qty' => $new_total_qty, 'checkin_balance' => $adjusted_checkin_qty, 'checkin_qty' => $new_total_qty],
                     ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
                 );
-
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
             }
 
@@ -1146,7 +1154,7 @@ class Warehouse extends CI_Controller {
         $data['users'] = $this->db->get_where('users', ['email' => 
         $this->session->userdata('email')])->row_array();
         $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
-        $data['out'] = $this->General_model->get_data('form_checkout_blackstone', ['id_spk' => $id])->result_array();
+        $data['out'] = $this->General_model->get_data('form_checkin_blackstone', ['id_spk' => $id])->result_array();
         $data['spkall'] = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->result_array();
         $data['spkitem'] = $this->General_model->get('form_checkin_item', ['id_spk' => $id]);
         $active_artcolor = $data['spk'];
@@ -1209,7 +1217,7 @@ class Warehouse extends CI_Controller {
         $data['users'] = $this->db->get_where('users', ['email' => 
         $this->session->userdata('email')])->row_array();
         $data['spk'] = $this->General_model->get_data('form_spk_checkin', ['id_spk' => $id])->result_array();
-        $data['in'] = $this->General_model->get_data('form_checkin_blackstone', ['id_spk' => $id])->result_array();
+        $data['in'] = $this->General_model->get_data('form_checkin_rossi', ['id_spk' => $id])->result_array();
         $data['spkall'] = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->result_array();
         $data['spkitem'] = $this->General_model->get('form_checkin_item', ['id_spk' => $id]);
         $active_artcolor = $data['spk'];
@@ -1405,7 +1413,7 @@ class Warehouse extends CI_Controller {
     }
 
         // Redirect to the correct handler
-        if ($brand_name === 'BLACKSTONE') {
+        if ($brand_name === 'BLACK STONE') {
             redirect('warehouse/sj_item_checkout_blackstone/' . $id_spk . '/' . $id_sj);
         } elseif ($brand_name === 'ROSSI') {
             redirect('warehouse/sj_item_checkout_rossi/' . $id_spk . '/' . $id_sj);
@@ -1422,7 +1430,7 @@ class Warehouse extends CI_Controller {
         $data['users'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
         $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
         $data['out'] = $this->General_model->get_data('form_sjitem_checkout_blackstone', ['id_spk' => $id])->result_array();
-        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkin_item', ['id_spk' => $id])->result_array();
         $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
 
          $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_blackstone', [
@@ -1508,13 +1516,29 @@ class Warehouse extends CI_Controller {
                     $existing = $this->db->get('form_checkin_item')->row_array();
 
                 $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
-                $new_total_qty = $existing_qty - $final_qty;
+                $current_checkout_qty = isset($existing['checkout_qty']) && is_numeric($existing['checkout_qty']) ? (int)$existing['checkout_qty'] : 0;
+                $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
 
-                // Update with new total
+                $new_total_qty = $existing_qty - $final_qty;
+                
+
+                // ✅ Compute adjusted checkout_qty
+                $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
+                $adjusted_checkout_qty = $final_qty - $total_consrate;
+
+                // ✅ Update qty and checkout_qty in one go
                 $this->General_model->update2(
                     'form_checkin_item',
-                    ['qty' => $new_total_qty],
-                    ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
+                    [
+                        'qty' => $new_total_qty,
+                        'checkout_qty' => $checkout_qty_with_addition,
+                        'checkout_balance' => $adjusted_checkout_qty,
+                    ],
+                    [
+                        'id_spk' => $id,
+                        'item_name' => $item_name,
+                        'unit_name' => $unit_name
+                    ]
                 );
 
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
@@ -1531,7 +1555,7 @@ class Warehouse extends CI_Controller {
         // Get SPK detail
         $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id_spk])->result_array();
         $data['out'] = $this->General_model->get_data('form_sjitem_checkout_rossi', ['id_spk' => $id_spk])->result_array();
-        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id_spk])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkin_item', ['id_spk' => $id_spk])->result_array();
         $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
 
          $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_rossi', [
@@ -1626,15 +1650,31 @@ class Warehouse extends CI_Controller {
                     ]);
                     $existing = $this->db->get('form_checkin_item')->row_array();
 
-                $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
-                $new_total_qty = $existing_qty - $final_qty;
+                    $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
+                    $current_checkout_qty = isset($existing['checkout_qty']) && is_numeric($existing['checkout_qty']) ? (int)$existing['checkout_qty'] : 0;
+                    $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
 
-                // Update with new total
-                $this->General_model->update2(
-                    'form_checkin_item',
-                    ['qty' => $new_total_qty],
-                    ['id_spk' => $id_spk, 'item_name' => $item_name, 'unit_name' => $unit_name]
-                );
+                    $new_total_qty = $existing_qty - $final_qty;
+                    
+
+                    // ✅ Compute adjusted checkout_qty
+                    $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
+                    $adjusted_checkout_qty = $final_qty - $total_consrate;
+
+                    // ✅ Update qty and checkout_qty in one go
+                    $this->General_model->update2(
+                        'form_checkin_item',
+                        [
+                            'qty' => $new_total_qty,
+                            'checkout_qty' => $checkout_qty_with_addition,
+                            'checkout_balance' => $adjusted_checkout_qty,
+                        ],
+                        [
+                            'id_spk' => $id,
+                            'item_name' => $item_name,
+                            'unit_name' => $unit_name
+                        ]
+                    );
 
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
             }
@@ -1649,7 +1689,7 @@ class Warehouse extends CI_Controller {
         $data['users'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
         $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
         $data['out'] = $this->General_model->get_data('form_sjitem_checkout_ariat', ['id_spk' => $id])->result_array();
-        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkin_item', ['id_spk' => $id])->result_array();
         $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
 
          $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_ariat', [
@@ -1736,15 +1776,31 @@ class Warehouse extends CI_Controller {
                     ]);
                     $existing = $this->db->get('form_checkin_item')->row_array();
 
-                $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
-                $new_total_qty = $existing_qty - $final_qty;
+                    $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
+                    $current_checkout_qty = isset($existing['checkout_qty']) && is_numeric($existing['checkout_qty']) ? (int)$existing['checkout_qty'] : 0;
+                    $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
 
-                // Update with new total
-                $this->General_model->update2(
-                    'form_checkin_item',
-                    ['qty' => $new_total_qty],
-                    ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
-                );
+                    $new_total_qty = $existing_qty - $final_qty;
+                    
+
+                    // ✅ Compute adjusted checkout_qty
+                    $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
+                    $adjusted_checkout_qty = $final_qty - $total_consrate;
+
+                    // ✅ Update qty and checkout_qty in one go
+                    $this->General_model->update2(
+                        'form_checkin_item',
+                        [
+                            'qty' => $new_total_qty,
+                            'checkout_qty' => $checkout_qty_with_addition,
+                            'checkout_balance' => $adjusted_checkout_qty,
+                        ],
+                        [
+                            'id_spk' => $id,
+                            'item_name' => $item_name,
+                            'unit_name' => $unit_name
+                        ]
+                    );
 
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
             }

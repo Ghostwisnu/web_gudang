@@ -39,10 +39,10 @@
                             <input type="text" name="total_qty" style="width: 90%;margin-right: 0px;margin-left: px;" class="form-control" id="total_qty" value="<?=$sp['total_qty']?>" readonly placeholder="">
                         </div>
                     </div>  
-                     
+                     <a type="button" class="badge badge-warning mb-3"  href="<?=base_url('warehouse/check_in_blackstone/'. $sp['id_spk'])?>" name="btn_add" style="margin:auto;">Back to Checkin</a> 
                 <?php endforeach; ?>
                 <a href="" class="badge badge-success mb-3" data-toggle="modal" data-target="#newSpkItemModal">Add New Checkin Item</a>
-                <a type="button" class="badge badge-warning mb-3"  href="<?=base_url('warehouse/index_checkin')?>" name="btn_add" style="margin:auto;">Back to Checkin</a>                    
+                                   
                 <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -110,7 +110,7 @@
                 <input type="hidden" name="artcolor_name" value="<?= $sp['artcolor_name']; ?>">
                         <div class="form-group" style="display:inline-block;">
                             <label for="no_do" style="width:87%;margin-left: 0px;">NO. DO</label>
-                            <input type="text" name="no_do" style="width: 90%;margin-right: 0px;margin-left: px;" class="form-control" id="no_do" placeholder="No DO">
+                            <input type="text" name="no_do" style="width: 90%;margin-right: 0px;margin-left: px;" class="form-control" id="no_do" value="<?= $datanosj;?>" readonly placeholder="No DO">
                         </div>
                         <div class="form-group" style="display:inline-block;">
                             <label for="no_sj" style="width:73%;">No. SJ</label>
