@@ -1516,30 +1516,30 @@ class Warehouse extends CI_Controller {
                     $existing = $this->db->get('form_checkin_item')->row_array();
 
                 $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
-                $current_checkout_qty = isset($existing['checkout_qty']) && is_numeric($existing['checkout_qty']) ? (int)$existing['checkout_qty'] : 0;
-                $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
+                    $current_checkout_qty = isset($existing['checkout_qty']) && is_numeric($existing['checkout_qty']) ? (int)$existing['checkout_qty'] : 0;
+                    $total_consrate = isset($existing['total_consrate']) && is_numeric($existing['total_consrate']) ? (int)$existing['total_consrate'] : 0;
 
-                $new_total_qty = $existing_qty - $final_qty;
-                
+                    $new_total_qty = $existing_qty - $final_qty;
+                    
 
-                // ✅ Compute adjusted checkout_qty
-                $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
-                $adjusted_checkout_qty = $final_qty - $total_consrate;
+                    // ✅ Compute adjusted checkout_qty
+                    $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
+                    $adjusted_checkout_qty = $checkout_qty_with_addition - $total_consrate;
 
-                // ✅ Update qty and checkout_qty in one go
-                $this->General_model->update2(
-                    'form_checkin_item',
-                    [
-                        'qty' => $new_total_qty,
-                        'checkout_qty' => $checkout_qty_with_addition,
-                        'checkout_balance' => $adjusted_checkout_qty,
-                    ],
-                    [
-                        'id_spk' => $id,
-                        'item_name' => $item_name,
-                        'unit_name' => $unit_name
-                    ]
-                );
+                    // ✅ Update qty and checkout_qty in one go
+                    $this->General_model->update2(
+                        'form_checkin_item',
+                        [
+                            'qty' => $new_total_qty,
+                            'checkout_qty' => $checkout_qty_with_addition,
+                            'checkout_balance' => $adjusted_checkout_qty,
+                        ],
+                        [
+                            'id_spk' => $id,
+                            'item_name' => $item_name,
+                            'unit_name' => $unit_name
+                        ]
+                    );
 
                 $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
                 redirect('warehouse/sj_item_checkout_blackstone/' . $id. '/' . $id_sj);
@@ -1659,7 +1659,7 @@ class Warehouse extends CI_Controller {
 
                     // ✅ Compute adjusted checkout_qty
                     $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
-                    $adjusted_checkout_qty = $final_qty - $total_consrate;
+                    $adjusted_checkout_qty = $checkout_qty_with_addition - $total_consrate;
 
                     // ✅ Update qty and checkout_qty in one go
                     $this->General_model->update2(
@@ -1785,7 +1785,7 @@ class Warehouse extends CI_Controller {
 
                     // ✅ Compute adjusted checkout_qty
                     $checkout_qty_with_addition = $current_checkout_qty + $final_qty;
-                    $adjusted_checkout_qty = $final_qty - $total_consrate;
+                    $adjusted_checkout_qty = $checkout_qty_with_addition - $total_consrate;
 
                     // ✅ Update qty and checkout_qty in one go
                     $this->General_model->update2(
