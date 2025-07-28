@@ -867,4 +867,23 @@ class General_model extends CI_Model
         return $query;
     }
 
+    public function buat_sj_auto()   {
+
+		$this->db->select('RIGHT(form_sj_checkout.no_sj,3) as no_sj', FALSE);
+		$this->db->order_by('no_sj','DESC');    
+		$this->db->limit(1);    
+		$query = $this->db->get('form_sj_checkout');    
+		if($query->num_rows() <> 0){          
+			$data = $query->row();      
+			$no_sj = intval($data->no_sj) + 1;    
+		}
+		else {          
+			$no_sj = 1;    
+		}
+		
+		$no_sjmax = str_pad($no_sj, 4, "0", STR_PAD_LEFT);
+		$no_sjjadi = "WH-AI-".$no_sjmax;
+		return $no_sjjadi;  
+	}
+
 }

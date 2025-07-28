@@ -612,6 +612,7 @@ class Form extends CI_Controller {
             // Add id_spk to the data array before inserting into form_spk_checkin
             $data['id_spk'] = $id_spk;
             $this->db->insert('form_spk_checkin', $data);
+            $this->db->insert('form_spk_checkout', $data);
 
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">SPK baru berhasil ditambahkan!</div>');
                 redirect('form/spk');
@@ -673,6 +674,7 @@ class Form extends CI_Controller {
 
             $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
             $this->General_model->update('form_spk_checkin', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+            $this->General_model->update('form_spk_checkout', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
 
             redirect('form/view_spk_blackstone/' . $id);
         }
@@ -845,6 +847,7 @@ class Form extends CI_Controller {
             // Update total_qty in main SPK table
             $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id], 'id_spk');
             $this->General_model->update('form_spk_checkin', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+            $this->General_model->update('form_spk_checkout', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
 
             // Redirect to the same view
             redirect('form/view_spk_rossi/' . $id);
@@ -1014,6 +1017,7 @@ class Form extends CI_Controller {
             // Update total_qty in form_spk as well
             $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id], 'id_spk');
             $this->General_model->update('form_spk_checkin', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+            $this->General_model->update('form_spk_checkout', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
 
             redirect('form/view_spk_ariat/' . $id);
         }

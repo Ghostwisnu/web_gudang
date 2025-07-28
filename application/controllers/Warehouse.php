@@ -157,21 +157,6 @@ class Warehouse extends CI_Controller {
 
     }
 
-    
-
-    public function index_checkout()
-    {
-        $data['title'] = 'Form Check OUT';
-        $data['users'] = $this->db->get_where('users', ['email' => 
-        $this->session->userdata('email')])->row_array();
-        
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar', $data);
-        $this->load->view('templates/topbar', $data);
-        $this->load->view('warehouse/index_checkout', $data);
-        $this->load->view('templates/footer');
-    }
-
     public function check_in_blackstone($id)
     {
         $data['title'] = 'Black Stone Checkin View';
@@ -1058,56 +1043,811 @@ class Warehouse extends CI_Controller {
         return $total;
     }
 
-    
-
-    
-
-    
-
-    public function checkout_blackstone()
+    public function index_checkout()
     {
-        $data['title'] = 'Form Check OUT Material BLACKSTONE';
+        $data['title'] = 'Form Menu Check OUT';
         $data['users'] = $this->db->get_where('users', ['email' => 
         $this->session->userdata('email')])->row_array();
-        
-        $data['checkout'] = $this->db->get('form_checkout_blackstone')->result_array();
 
+        $data['artcolor'] = $this->db->get('form_ac')->result_array();
+        $data['brand'] = $this->db->get('form_brand')->result_array();
+        $data['spk'] = $this->db->get('form_spk_checkout')->result_array();
+        $data['size'] = $this->General_model->get('form_spk_detail');
+
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        
+        if($this->form_validation->run() == false)
+        {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('warehouse/index_checkout', $data);
+            $this->load->view('templates/footer');
+        } else {
+            $po_number      = strtoupper($this->input->post('po_number',TRUE)); 
+            $xfd      = $this->input->post('xfd',TRUE); 
+            $brand      = strtoupper($this->input->post('brand_name',TRUE));
+            $artcolor      = $this->input->post('artcolor_name',TRUE);    
+
+            $data = array(
+                    'po_number' => $po_number,
+                    'xfd' => $xfd,
+                    'brand_name' => $brand,
+                    'artcolor_name' => $artcolor,
+            );
+            $this->db->insert('form_spk_checkin', $data);
+            $insert_id = $this->db->insert_id(); // Get ID for detail views
+
+            $brand_lower = strtolower($brand);
+
+            if ($brand_lower === 'blackstone') {
+                redirect('warehouse/checkout_blackstone/' . $insert_id);
+            } elseif ($brand_lower === 'rossi') {
+                redirect('warehouse/checkout_rossi/' . $insert_id);
+            } elseif ($brand_lower === 'ariat') {
+                redirect('warehouse/checkout_ariat/' . $insert_id);
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-warning" role="alert">Brand not recognized. Showing default view.</div>');
+                redirect('warehouse/index_checkin');
+            }
+        }
+    }
+
+    public function update_spk_checkout_brand($id_spk)
+    {
+        $spk = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id_spk])->row_array();
+
+    if (!$spk) {
+        redirect('warehouse/index_checkout'); // fallback if not found
+    }
+
+    $brand_name = $spk['brand_name'];
+
+    // Redirect to specific brand handler
+    if ($brand_name === 'BLACK STONE') {
+        redirect('warehouse/check_out_blackstone/' . $id_spk);
+    } elseif ($brand_name === 'ROSSI') {
+        redirect('warehouse/check_out_rossi/' . $id_spk);
+    } elseif ($brand_name === 'ARIAT') {
+        redirect('warehouse/check_out_ariat/' . $id_spk);
+    } else {
+        redirect('warehouse/index_checkout');
+    }
+    }
+
+    public function update_sj_checkout_brand($id_spk)
+    {
+        $spk = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id_spk])->row_array();
+
+    if (!$spk) {
+        redirect('warehouse/index_checkout'); // fallback if not found
+    }
+
+    $brand_name = $spk['brand_name'];
+
+    // Redirect to specific brand handler
+    if ($brand_name === 'BLACKSTONE') {
+        redirect('warehouse/sj_item_checkout_blackstone/' . $id_spk);
+    } elseif ($brand_name === 'ROSSI') {
+        redirect('warehouse/sj_item_checkout_rossi/' . $id_spk);
+    } elseif ($brand_name === 'ARIAT') {
+        redirect('warehouse/sj_item_checkout_ariat/' . $id_spk);
+    } else {
+        redirect('warehouse/index_checkout');
+    }
+    }
+
+    public function check_out_blackstone($id)
+    {
+        $data['title'] = 'Black Stone CheckOUT View';
+        $data['users'] = $this->db->get_where('users', ['email' => 
+        $this->session->userdata('email')])->row_array();
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['out'] = $this->General_model->get_data('form_checkout_blackstone', ['id_spk' => $id])->result_array();
+        $data['spkall'] = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_checkin_item', ['id_spk' => $id]);
+        $active_artcolor = $data['spk'];
+        $data['item'] = $this->General_model->get('form_consrate', ['artcolor_name' => $active_artcolor]);
+
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        for ($i = 36; $i <= 50; $i++) {
+            $this->form_validation->set_rules('size_' . $i, 'Size ' . $i, 'numeric|greater_than_equal_to[0]');
+        }
+
+            
+
+        if ($this->form_validation->run() == false) {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('warehouse/checkout_blackstone', $data);
         $this->load->view('templates/footer');
+        } else {
+            // Prepare data
+            $insertData = [
+                'id_spk' => $id,
+                'po_number' => $this->input->post('po_number'),
+                'xfd' => $this->input->post('xfd'),
+                'brand_name' => $this->input->post('brand_name'),
+                'artcolor_name' => $this->input->post('artcolor_name'),
+            ];
+
+            for ($i = 36; $i <= 50; $i++) {
+                $insertData['size_' . $i] = $this->input->post('size_' . $i);
+            }
+
+            $total_qty = $this->_sum_sizes();
+            $insertData['total_qty'] = $total_qty;
+            // Check if id_spk already exists in tb_blackstone_size
+            $existing = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->row();
+
+            if ($existing) {
+                // Update existing
+                $this->General_model->update('tb_blackstone_size', $insertData, ['id_spk' => $id], 'id_spk');
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK updated successfully.</div>');
+            } else {
+                // Insert new
+                $this->General_model->insert('tb_blackstone_size', $insertData);
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK added successfully.</div>');
+            }
+
+            $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+
+            redirect('form/view_spk_blackstone/' . $id);
+        }
     }
 
-    public function checkout_rossi()
+    public function check_out_rossi($id)
     {
-        $data['title'] = 'Form Check OUT Material ROSSI';
+        $data['title'] = 'ROSSI CheckOUT View';
         $data['users'] = $this->db->get_where('users', ['email' => 
         $this->session->userdata('email')])->row_array();
-        
-        $data['checkout'] = $this->db->get('form_checkout_rossi')->result_array();
+        $data['spk'] = $this->General_model->get_data('form_spk_checkin', ['id_spk' => $id])->result_array();
+        $data['in'] = $this->General_model->get_data('form_checkin_blackstone', ['id_spk' => $id])->result_array();
+        $data['spkall'] = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_checkin_item', ['id_spk' => $id]);
+        $active_artcolor = $data['spk'];
+        $data['item'] = $this->General_model->get('form_consrate', ['artcolor_name' => $active_artcolor]);
 
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        for ($i = 36; $i <= 50; $i++) {
+            $this->form_validation->set_rules('size_' . $i, 'Size ' . $i, 'numeric|greater_than_equal_to[0]');
+        }
+
+            
+
+        if ($this->form_validation->run() == false) {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('warehouse/checkout_rossi', $data);
         $this->load->view('templates/footer');
+        } else {
+            // Prepare data
+            $insertData = [
+                'id_spk' => $id,
+                'po_number' => $this->input->post('po_number'),
+                'xfd' => $this->input->post('xfd'),
+                'brand_name' => $this->input->post('brand_name'),
+                'artcolor_name' => $this->input->post('artcolor_name'),
+            ];
+
+            for ($i = 36; $i <= 50; $i++) {
+                $insertData['size_' . $i] = $this->input->post('size_' . $i);
+            }
+
+            $total_qty = $this->_sum_sizes();
+            $insertData['total_qty'] = $total_qty;
+            // Check if id_spk already exists in tb_blackstone_size
+            $existing = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->row();
+
+            if ($existing) {
+                // Update existing
+                $this->General_model->update('tb_blackstone_size', $insertData, ['id_spk' => $id], 'id_spk');
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK updated successfully.</div>');
+            } else {
+                // Insert new
+                $this->General_model->insert('tb_blackstone_size', $insertData);
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK added successfully.</div>');
+            }
+
+            $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+
+            redirect('form/view_spk_blackstone/' . $id);
+        }
     }
 
-    public function checkout_ariat()
+    public function check_out_ariat($id)
     {
-        $data['title'] = 'Form Check OUT Material ARIAT';
+        $data['title'] = 'ARIAT CheckOUT View';
         $data['users'] = $this->db->get_where('users', ['email' => 
         $this->session->userdata('email')])->row_array();
-        
-        $data['checkout'] = $this->db->get('form_checkout_ariat')->result_array();
+        $data['spk'] = $this->General_model->get_data('form_spk_checkin', ['id_spk' => $id])->result_array();
+        $data['in'] = $this->General_model->get_data('form_checkin_ariat', ['id_spk' => $id])->result_array();
+        $data['spkall'] = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_checkin_item', ['id_spk' => $id]);
+        $active_artcolor = $data['spk'];
+        $data['item'] = $this->General_model->get('form_consrate', ['artcolor_name' => $active_artcolor]);
 
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        for ($i = 36; $i <= 50; $i++) {
+            $this->form_validation->set_rules('size_' . $i, 'Size ' . $i, 'numeric|greater_than_equal_to[0]');
+        }
+
+            
+
+        if ($this->form_validation->run() == false) {
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/topbar', $data);
         $this->load->view('warehouse/checkout_ariat', $data);
         $this->load->view('templates/footer');
+        } else {
+            // Prepare data
+            $insertData = [
+                'id_spk' => $id,
+                'po_number' => $this->input->post('po_number'),
+                'xfd' => $this->input->post('xfd'),
+                'brand_name' => $this->input->post('brand_name'),
+                'artcolor_name' => $this->input->post('artcolor_name'),
+            ];
+
+            for ($i = 36; $i <= 50; $i++) {
+                $insertData['size_' . $i] = $this->input->post('size_' . $i);
+            }
+
+            $total_qty = $this->_sum_sizes();
+            $insertData['total_qty'] = $total_qty;
+            // Check if id_spk already exists in tb_blackstone_size
+            $existing = $this->General_model->get_data('tb_blackstone_size', ['id_spk' => $id])->row();
+
+            if ($existing) {
+                // Update existing
+                $this->General_model->update('tb_blackstone_size', $insertData, ['id_spk' => $id], 'id_spk');
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK updated successfully.</div>');
+            } else {
+                // Insert new
+                $this->General_model->insert('tb_blackstone_size', $insertData);
+                $this->session->set_flashdata('message', '<div class="alert alert-success">SPK added successfully.</div>');
+            }
+
+            $this->General_model->update('form_spk', ['total_qty' => $total_qty], ['id_spk' => $id],'id_spk');
+
+            redirect('form/view_spk_blackstone/' . $id);
+        }
     }
+
+    public function update_sj_checkout($id){
+    $data['title'] = 'Form Surat Jalan CheckOUT';
+    $data['users'] = $this->db->get_where('users', ['email' => 
+    $this->session->userdata('email')])->row_array();
+    $data['datanosj'] = $this->General_model->buat_sj_auto();
+
+    $id_spk = $this->uri->segment(3);
+    $where = ['id_spk' => $id_spk];
+    $data['spk'] = $this->General_model->get_one('form_spk_checkout', $where);
+
+    if (!$data['spk']) {
+        show_error('SPK data not found for ID: ' . $id_spk);
+    }
+    $data['spkitem'] = $this->General_model->get('form_sj_checkout', ['id_spk' => $id_spk]);
+
+    $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+    $this->form_validation->set_rules('xfd', 'xfd', 'required');
+    $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+    $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+    $this->form_validation->set_rules('tgl_checkout', 'tanggal checkout', 'required');
+    $this->form_validation->set_rules('from', 'From', 'required');
+    $this->form_validation->set_rules('to_dept', 'TO Department', 'required');
+
+    if($this->form_validation->run() == false) {
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('warehouse/menu_sj_checkout', $data);
+        $this->load->view('templates/footer');
+    } else {
+        // 1. Capture inputs
+        $insert_data = [
+            'po_number'      => strtoupper($this->input->post('po_number', TRUE)),
+            'xfd'            => $this->input->post('xfd', TRUE),
+            'brand_name'     => $this->input->post('brand_name', TRUE),
+            'artcolor_name'  => $this->input->post('artcolor_name', TRUE),
+            'no_sj'          => strtoupper($this->input->post('no_sj', TRUE)),
+            'tgl_checkout'   => strtoupper($this->input->post('tgl_checkout', TRUE)),
+            'from'           => strtoupper($this->input->post('from', TRUE)),
+            'to_dept'        => strtoupper($this->input->post('to_dept', TRUE)),
+            'created_at'     => date('Y-m-d H:i:s'),
+            'id_spk'         => $id_spk,
+        ];
+
+
+        // 2. Insert detail row (qty is per-item)
+        $this->General_model->insert('form_sj_checkout', $insert_data);
+
+        // 3. Update total in form_spk
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Surat Jalan berhasil ditambahkan!</div>');
+        redirect('warehouse/update_sj_checkout/'.$id_spk);
+    }
+
+    }
+
+    public function sj_detail_item_checkout($id_spk, $id_sj = null)
+    {
+        $spk = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id_spk])->row_array();
+
+        if (!$spk) {
+            redirect('warehouse/index_checkout');
+        }
+
+        $brand_name = $spk['brand_name'];
+
+        // Get the latest or first SJ for this SPK
+        if ($id_sj === null) {
+        $sj = $this->General_model->get_data('form_sj', ['id_spk' => $id_spk], 1)->row_array();
+        if (!$sj) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">No SJ found for this SPK.</div>');
+            redirect('warehouse/index_checkout');
+        }
+        $id_sj = $sj['id_sj'];
+    }
+
+        // Redirect to the correct handler
+        if ($brand_name === 'BLACKSTONE') {
+            redirect('warehouse/sj_item_checkout_blackstone/' . $id_spk . '/' . $id_sj);
+        } elseif ($brand_name === 'ROSSI') {
+            redirect('warehouse/sj_item_checkout_rossi/' . $id_spk . '/' . $id_sj);
+        } elseif ($brand_name === 'ARIAT') {
+            redirect('warehouse/sj_item_checkout_ariat/' . $id_spk . '/' . $id_sj);
+        } else {
+            redirect('warehouse/index_checkout');
+        }
+    }
+
+    public function sj_item_checkout_blackstone($id, $id_sj)
+    {
+        $data['title'] = 'BlackStone Checkout SJ View';
+        $data['users'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['out'] = $this->General_model->get_data('form_sjitem_checkout_blackstone', ['id_spk' => $id])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
+
+         $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_blackstone', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ]);
+        $data['id_spk'] = $id;
+        $data['id_sj']  = $id_sj;
+
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        $this->form_validation->set_rules('tgl_checkout', 'Tanggal Checkout', 'required');
+        $this->form_validation->set_rules('item_name', 'Item Name', 'required');
+        $this->form_validation->set_rules('unit_name', 'Unit Name', 'required');
+        $this->form_validation->set_rules('id_sj', 'ID SJ', 'required');
+
+        if ($this->form_validation->run() == false) {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('warehouse/sj_item_checkout_blackstone', $data);
+            $this->load->view('templates/footer');
+        } else {
+            $item_name  = $this->input->post('item_name');
+            $unit_name  = $this->input->post('unit_name');
+            $item_type  = $this->input->post('item_type');
+
+            // 🔍 Check if same item_name + unit_name already exists for this id_spk
+            $exists = $this->General_model->get_one('form_sjitem_checkout_blackstone', [
+                'id_spk'     => $id,
+                'id_sj'      => $id_sj,
+                'item_name'  => $item_name,
+                'unit_name'  => $unit_name
+            ]);
+
+            if ($exists) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+                redirect('warehouse/sj_item_checkout_blackstone/' . $id. '/' . $id_sj);
+            } else {
+                // ✅ Prepare base insert data
+                $insertData = [
+                    'id_spk'        => $id,
+                    'po_number'     => $this->input->post('po_number'),
+                    'xfd'           => $this->input->post('xfd'),
+                    'brand_name'    => $this->input->post('brand_name'),
+                    'artcolor_name' => $this->input->post('artcolor_name'),
+                    'no_sj'         => $this->input->post('no_sj'),
+                    'from'          => $this->input->post('from'),
+                    'to_dept'       => $this->input->post('to_dept'),
+                    'tgl_checkout'  => $this->input->post('tgl_checkout'),
+                    'id_sj'         => $this->input->post('id_sj'),
+                    'item_type'     => $item_type,
+                    'item_name'     => $item_name,
+                    'unit_name'     => $unit_name,
+                ];
+
+                $final_qty = 0;
+
+                // ✅ Add conditional fields
+                if ($item_type === 'GLOBAL') {
+                    $final_qty = (int) $this->input->post('qty');
+                    $insertData['qty'] = $final_qty;
+
+                } elseif ($item_type === 'SIZERUN') {
+                    for ($i = 36; $i <= 50; $i++) {
+                        $sizeQty = (int) $this->input->post('size_' . $i);
+                        $insertData['size_' . $i] = $sizeQty;
+                        $final_qty += $sizeQty;
+                    }
+                    $insertData['qty'] = $final_qty;
+                }
+
+                // ✅ Insert into sjitem table
+                $this->General_model->insert('form_sjitem_checkout_blackstone', $insertData);
+
+                $this->db->where([
+                        'id_spk'     => $id,
+                        'item_name'  => $item_name,
+                        'unit_name'  => $unit_name
+                    ]);
+                    $existing = $this->db->get('form_checkin_item')->row_array();
+
+                $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
+                $new_total_qty = $existing_qty - $final_qty;
+
+                // Update with new total
+                $this->General_model->update2(
+                    'form_checkin_item',
+                    ['qty' => $new_total_qty],
+                    ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
+                );
+
+                $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
+                redirect('warehouse/sj_item_checkout_blackstone/' . $id. '/' . $id_sj);
+            }
+        }
+    }
+
+    public function sj_item_checkout_rossi($id_spk, $id_sj)
+    {
+        $data['title'] = 'Rossi Checkout SJ View';
+        $data['users'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+        
+        // Get SPK detail
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id_spk])->result_array();
+        $data['out'] = $this->General_model->get_data('form_sjitem_checkout_rossi', ['id_spk' => $id_spk])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id_spk])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
+
+         $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_rossi', [
+            'id_spk' => $id_spk,
+            'id_sj'  => $id_sj
+        ]);
+        $data['id_spk'] = $id_spk;
+        $data['id_sj']  = $id_sj;
+
+
+        // Validation rules
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        $this->form_validation->set_rules('tgl_checkout', 'Tanggal Checkout', 'required');
+        $this->form_validation->set_rules('item_name', 'Item Name', 'required');
+        $this->form_validation->set_rules('unit_name', 'Unit Name', 'required');
+        $this->form_validation->set_rules('id_sj', 'ID SJ', 'required');
+
+        // Defined sizes for SIZERUN
+        $sizes = [
+            '3', '3t', '4', '4t', '5', '5t', '6', '6t', '7', '7t',
+            '8', '8t', '9', '9t', '10', '10t', '11', '11t', '12', '13', '14', '15'
+        ];
+
+        if ($this->form_validation->run() == false) {
+            // Show view
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('warehouse/sj_item_checkout_rossi', $data);
+            $this->load->view('templates/footer');
+        } else {
+            // Handle form submission
+            $item_name = $this->input->post('item_name');
+            $unit_name = $this->input->post('unit_name');
+            $item_type = $this->input->post('item_type');
+
+            // ✅ Check if item already exists for the same SPK and unit
+            $exists = $this->General_model->get_one('form_sjitem_checkout_rossi', [
+                'id_spk' => $id_spk,
+                'id_sj'     => $id_sj,
+                'item_name' => $item_name,
+                'unit_name' => $unit_name
+            ]);
+
+            if ($exists) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+                 redirect('warehouse/sj_item_checkout_rossi/' . $id. '/' . $id_sj);
+            } else {
+                // Prepare insert data
+                $insertData = [
+                    'id_spk'        => $id_spk,
+                    'po_number'     => $this->input->post('po_number'),
+                    'xfd'           => $this->input->post('xfd'),
+                    'brand_name'    => $this->input->post('brand_name'),
+                    'artcolor_name' => $this->input->post('artcolor_name'),
+                    'no_sj'         => $this->input->post('no_sj'),
+                    'from'          => $this->input->post('from'),
+                    'to_dept'       => $this->input->post('to_dept'),
+                    'tgl_checkout'  => $this->input->post('tgl_checkout'),
+                    'id_sj'         => $this->input->post('id_sj'),
+                    'item_type'     => $item_type,
+                    'item_name'     => $item_name,
+                    'unit_name'     => $unit_name,
+
+                ];
+
+                $final_qty = 0;
+
+                if ($item_type === 'GLOBAL') {
+                    // GLOBAL type - single qty field
+                    $final_qty = $this->input->post('qty');
+                    $insertData['qty'] = $final_qty;
+                } elseif ($item_type === 'SIZERUN') {
+                    // SIZERUN type - multiple sizes
+                    foreach ($sizes as $size) {
+                        $value = $this->input->post('size_' . $size);
+                        $insertData['size_' . $size] = $value;
+                        $final_qty += $value;
+                    }
+                    $insertData['qty'] = $final_qty;
+                }
+
+                $this->General_model->insert('form_sjitem_checkout_rossi', $insertData);
+
+                $this->db->where([
+                        'id_spk'     => $id_spk,
+                        'item_name'  => $item_name,
+                        'unit_name'  => $unit_name
+                    ]);
+                    $existing = $this->db->get('form_checkin_item')->row_array();
+
+                $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
+                $new_total_qty = $existing_qty - $final_qty;
+
+                // Update with new total
+                $this->General_model->update2(
+                    'form_checkin_item',
+                    ['qty' => $new_total_qty],
+                    ['id_spk' => $id_spk, 'item_name' => $item_name, 'unit_name' => $unit_name]
+                );
+
+                $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
+            }
+
+            redirect('warehouse/sj_item_checkout_rossi/' . $id_spk .'/' . $id_sj);
+        }
+    }
+
+    public function sj_item_checkout_ariat($id, $id_sj)
+    {
+        $data['title'] = 'Ariat Checkout SJ View';
+        $data['users'] = $this->db->get_where('users', ['email' => $this->session->userdata('email')])->row_array();
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['out'] = $this->General_model->get_data('form_sjitem_checkout_ariat', ['id_spk' => $id])->result_array();
+        $data['uns'] = $this->General_model->get_data('form_checkout_item', ['id_spk' => $id])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', ['id_sj' => $id_sj])->result_array();
+
+         $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_ariat', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ]);
+        $data['id_spk'] = $id;
+        $data['id_sj']  = $id_sj;
+
+        $this->form_validation->set_rules('po_number', 'Po Number', 'required');
+        $this->form_validation->set_rules('xfd', 'xfd', 'required');
+        $this->form_validation->set_rules('brand_name', 'Brand Name', 'required');
+        $this->form_validation->set_rules('artcolor_name', 'ArtColor Name', 'required');
+        $this->form_validation->set_rules('tgl_checkout', 'Tanggal Checkout', 'required');
+        $this->form_validation->set_rules('item_name', 'Item Name', 'required');
+        $this->form_validation->set_rules('unit_name', 'Unit Name', 'required');
+        $this->form_validation->set_rules('id_sj', 'ID SJ', 'required');
+
+        $sizes = [
+            '6d', '6_5d', '7d', '7_5d', '8d', '8_5d',
+            '9d', '9_5d', '10d', '10_5d', '11d', '11_5d',
+            '12d', '13d', '14d', '15d', '16d'
+        ];
+
+        if ($this->form_validation->run() == false) {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('warehouse/sj_item_checkout_ariat', $data);
+            $this->load->view('templates/footer');
+        } else {
+            $item_name  = $this->input->post('item_name');
+            $unit_name  = $this->input->post('unit_name');
+            $item_type  = $this->input->post('item_type');
+
+            // Correct table name
+            $exists = $this->General_model->get_one('form_sjitem_checkout_ariat', [
+                'id_spk'     => $id,
+                'id_sj'     => $id_sj,
+                'item_name'  => $item_name,
+                'unit_name'  => $unit_name
+            ]);
+
+            if ($exists) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Data with the same Item and Unit already exists. No new entry added.</div>');
+            } else {
+                $insertData = [
+                    'id_spk'        => $id,
+                    'po_number'     => $this->input->post('po_number'),
+                    'xfd'           => $this->input->post('xfd'),
+                    'brand_name'    => $this->input->post('brand_name'),
+                    'artcolor_name' => $this->input->post('artcolor_name'),
+                    'no_sj'         => $this->input->post('no_sj'),
+                    'from'          => $this->input->post('from'),
+                    'to_dept'       => $this->input->post('to_dept'),
+                    'tgl_checkout'  => $this->input->post('tgl_checkout'),
+                    'id_sj'         => $this->input->post('id_sj'),
+                    'item_type'     => $item_type,
+                    'item_name'     => $item_name,
+                    'unit_name'     => $unit_name,
+                ];
+
+                $final_qty = 0;
+
+                if ($item_type === 'GLOBAL') {
+                    $final_qty = (int) $this->input->post('qty');
+                    $insertData['qty'] = $final_qty;
+
+                } elseif ($item_type === 'SIZERUN') {
+                    foreach ($sizes as $size) {
+                        $value = (int) $this->input->post('size_' . $size);
+                        $insertData['size_' . $size] = $value;
+                        $final_qty += $value;
+                    }
+                    $insertData['qty'] = $final_qty;
+                }
+
+                $this->General_model->insert('form_sjitem_checkout_ariat', $insertData);
+
+                $this->db->where([
+                        'id_spk'     => $id,
+                        'item_name'  => $item_name,
+                        'unit_name'  => $unit_name
+                    ]);
+                    $existing = $this->db->get('form_checkin_item')->row_array();
+
+                $existing_qty = isset($existing['qty']) && is_numeric($existing['qty']) ? (int)$existing['qty'] : 0;
+                $new_total_qty = $existing_qty - $final_qty;
+
+                // Update with new total
+                $this->General_model->update2(
+                    'form_checkin_item',
+                    ['qty' => $new_total_qty],
+                    ['id_spk' => $id, 'item_name' => $item_name, 'unit_name' => $unit_name]
+                );
+
+                $this->session->set_flashdata('message', '<div class="alert alert-success">Item added and quantity updated successfully.</div>');
+            }
+
+            redirect('warehouse/sj_item_checkout_ariat/' . $id .'/' . $id_sj);
+        }
+    }
+
+    public function export_sj_checkout_ariat_pdf($id,$id_sj)
+    {
+        $data['title'] = 'BUKTI PENGELUARAN BARANG WAREHOUSE';
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_ariat', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ]);
+
+        // Load the HTML view
+        $html = $this->load->view('warehouse/pdf_sj_checkout_ariat', $data, TRUE);
+
+        // Set options
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+
+        // Instantiate Dompdf
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape'); // Or portrait
+        
+        $dompdf->render();
+        $no_sj = !empty($data['outsj']) ? $data['outsj'][0]['no_sj'] : $id;
+        $dompdf->stream("sj_rossi_{$no_sj}.pdf", array("Attachment" => 0)); // 0 = view in browser
+    }
+
+
+    
+
+    public function export_sj_checkout_blackstone_pdf($id,$id_sj)
+    {
+        $data['title'] = 'BUKTI PENGELUARAN BARANG WAREHOUSE';
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_blackstone', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ]);
+
+        // Load the HTML view
+        $html = $this->load->view('warehouse/pdf_sj_checkout_blackstone', $data, TRUE);
+
+        // Set options
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+
+        // Instantiate Dompdf
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape'); // Or portrait
+        
+        $dompdf->render();
+        $no_sj = !empty($data['outsj']) ? $data['outsj'][0]['no_sj'] : $id;
+        $dompdf->stream("sj_blackstone_{$no_sj}.pdf", array("Attachment" => 0)); // 0 = view in browser
+    }
+
+    public function export_sj_checkout_rossi_pdf($id,$id_sj)
+    {
+        $data['title'] = 'BUKTI PENGELUARAN BARANG WAREHOUSE';
+        $data['spk'] = $this->General_model->get_data('form_spk_checkout', ['id_spk' => $id])->result_array();
+        $data['outsj'] = $this->General_model->get_data('form_sj_checkout', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ])->result_array();
+        $data['spkitem'] = $this->General_model->get('form_sjitem_checkout_rossi', [
+            'id_spk' => $id,
+            'id_sj'  => $id_sj
+        ]);
+
+        // Load the HTML view
+        $html = $this->load->view('warehouse/pdf_sj_checkout_rossi', $data, TRUE);
+
+        // Set options
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+
+        // Instantiate Dompdf
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape'); // Or portrait
+        
+        $dompdf->render();
+        $no_sj = !empty($data['outsj']) ? $data['outsj'][0]['no_sj'] : $id;
+        $dompdf->stream("sj_rossi_{$no_sj}.pdf", array("Attachment" => 0)); // 0 = view in browser
+    }
+
+    
+    
 
     public function transaksi()
     {
