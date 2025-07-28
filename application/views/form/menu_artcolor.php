@@ -26,7 +26,7 @@
                             <th scope="row"><?= $i; ?></th>
                             <td><?= $ac['art_name']?></td>
                             <td>
-                                <a href="<?= base_url('form/delete_artcolor/'.$ac['id_art'])?>" name="btn-delete" class="badge badge-danger">delete</a>
+                                <a href="<?= base_url('form/delete_art/'.$ac['id_art'])?>" name="btn-delete" class="badge badge-danger">delete</a>
                             </td>
                         </tr>
                         <?php $i++; ?>
@@ -54,7 +54,7 @@
                             <th scope="row"><?= $i; ?></th>
                             <td><?= $ac['color_name']?></td>
                             <td>
-                                <a href="<?= base_url('form/delete_artcolor/'.$ac['id_color'])?>" name="btn-delete" class="badge badge-danger">delete</a>
+                                <a href="<?= base_url('form/delete_color/'.$ac['id_color'])?>" name="btn-delete" class="badge badge-danger">delete</a>
                             </td>
                         </tr>
                         <?php $i++; ?>

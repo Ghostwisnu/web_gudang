@@ -197,7 +197,47 @@ class Form extends CI_Controller {
             return;
         }
 
-        $deleted = $this->General_model->delete('form_artcolor', 'id_artcolor', $id);
+        $deleted = $this->General_model->delete('form_ac', 'id_ac', $id);
+
+        if ($deleted > 0) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Art & Color deleted successfully.</div>');
+                redirect('form/artcolor');
+
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Art & Color not found.</div>');
+            redirect('form/artcolor');
+        }
+    }
+    
+    public function delete_art($id){
+        $this->load->model('General_model');
+
+        if (!$id) {
+            show_error("Missing brand ID");
+            return;
+        }
+
+        $deleted = $this->General_model->delete('form_art', 'id_art', $id);
+
+        if ($deleted > 0) {
+            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Art & Color deleted successfully.</div>');
+                redirect('form/artcolor');
+
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Art & Color not found.</div>');
+            redirect('form/artcolor');
+        }
+    }
+
+    public function delete_color($id){
+        $this->load->model('General_model');
+
+        if (!$id) {
+            show_error("Missing brand ID");
+            return;
+        }
+
+        $deleted = $this->General_model->delete('form_color', 'id_color', $id);
 
         if ($deleted > 0) {
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Art & Color deleted successfully.</div>');

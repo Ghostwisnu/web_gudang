@@ -852,6 +852,7 @@ class Warehouse extends CI_Controller {
             redirect('warehouse/sj_item_ariat/' . $id .'/' . $id_sj);
         }
     }
+    
     public function delete_sj_blackstone($id)
 {
     $this->load->model('General_model');
