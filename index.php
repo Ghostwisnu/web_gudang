@@ -56,7 +56,7 @@
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
 	// Load Composer Autoloader
-	require_once __DIR__ . '/vendor/autoload.php';
+	require_once __DIR__ . '/assets/vendor/autoload.php';
 
 /*
  *---------------------------------------------------------------
